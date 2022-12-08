@@ -1,0 +1,291 @@
+---
+title: "Maternal Health Risks"
+author: Rex Manglicmot
+date: 11/10/22
+output: 
+  html_notebook: 
+    toc: yes
+    highlight: pygments
+    theme: journal
+---
+### *Status: working document*
+
+## Introduction
+Maternal health risks has increased since the medeival days. However, there is still a need to understand the underlying factors that contribute to women health includings metrics such as age and blood sugar levels over various age groups.
+
+This projects aims to learn more about such predictors by using machine learning methods such as KNN and Random Forests to see if factors can accurately predict maternal health risks.
+
+Based on UCI's Repository below are the metrics:
+1. Age
+2. Systolic BP (blood pressure)
+3. Diastolic BP (blood pressure)
+4. Blood Sugar
+5. Body Temp
+6. Heart Rate
+7. Risk Level
+
+This project is outlined below:
+1. Loading libraries and dataset
+2. Cleaning dataset; including checking for NA values and if the dataset is tidy
+3. Exploratory Data Analysis
+4. Machine Learning Methods (KNN and Random Forests)
+5. Next Steps
+
+## Loading libraries and dataset
+```{r Loading libraries and dataset}
+#install.packages('ggridges') installed on 11/13/22
+
+#load libraries
+library(tidyverse)
+library(corrplot)
+library(RColorBrewer)
+library(gghalves)
+#library(GGally)
+library(class)
+library(ggridges)
+
+```
+```{r Loading libraries and dataset continued}
+#load data
+data <- read.csv('Maternal Health Risk Data Set.csv')
+
+#print first few rows of the data
+head(data,n=10)
+
+#Change BS to BloodSugar for better understanding
+colnames(data)[4] <-'BloodSugar'
+
+#glimpse data
+glimpse(data)
+```
+## Cleaning the data
+Now, with the relevant libraries are loaded and the dataset variables are clearly understood, next steps are to clean and check for missing values, characters that are unothordox to each of the metrics via R codes below. 
+
+```{r Cleaning dataset}
+#check for  missing data in full dataset 
+#difficult to do when there are lots of observations
+#is.na(data)
+
+#check for missing data via different columns
+#again difficult
+#is.na(data$Age)
+```
+This codes above returns the dataset in which if there are no NA, FALSE will be printed in the whole dataset and the Age column. 
+
+Let's try another method.
+```{r Cleaning dataset continued}
+#check for missing data for each variable column using sum
+#output is 0 for all columns
+colSums(is.na(data))
+```
+```{r Cleaning dataset continued 2}
+#find location of missing data, if any
+which(is.na(data))
+```
+```{r Cleaning dataset continued 3}
+#sum the NA, if any. There are no NA values
+sum(is.na(data))
+```
+```{r Cleaning dataset continued 4}
+#get percentage of missing data in dataset
+mean(is.na(data))
+```
+The dataset is cleaned and tidy. Next steps are to do EDA.
+
+## Exploratory Data Analysis
+```{r Exploratory Data Analysis}
+#Summary statistics of each of the variables
+str(data)
+```
+Many of the variables except RiskLevel are factors and let's see what the distributions are using the summary function. 
+```{r Exploratory Data Analysis continued 1}
+#Structure of data without the RiskLevel variable because it is a character
+summary(data[-7])
+```
+We see different distributions based on each metric. We see that the SystolicBP and DiastolicBP are normally distributed,and thus nothing interesting to probe with these metrics. The same can also be said about bodyTemp, there is no variance between each summary statistics, further, the regular body temp is ~98 degrees. 
+
+BloodSugar and Heartrate have interesting summary statistics, regarding the max and min, respectively. BloodSugar max value is 19, while the rest of the values are somewhat normally distributed. Heartrate has a min value of 7, while the rest of the values are also somewhat normally distributed. This means that both metrics have outliers, which skews the mean towards the outliers. Unlike HeartRate, the mean of BloodSugar is near the median indicating that the majority of the observatins are near the 6-8 value range. 
+
+Age is interesing because the min and max are 10 and 70, respectively. Generally, as the age increases, there tends to be more complications and thus, this is a variable that I will focus on. 
+
+But first, let's just focus on the RiskLevel variable and see what values are present and each of their count, and visualize the count via a barchart.
+```{r Exploratory Data Analysis continued 2}
+#what are the of categories within Risk Level
+distinct(data,RiskLevel)
+
+#sum categories within Risk Level
+data %>%
+  group_by(RiskLevel) %>%
+  count()
+
+#Visualize count the number of categories within Risk Level
+ggplot(data, aes(x=RiskLevel, fill=RiskLevel)) +
+  geom_bar(width=.5, color ='black') +
+  labs(title = 'Risk Level Bar Chart',
+    x= 'Types of Risks',
+    y= "Count") +
+  scale_fill_brewer(palette = 'RdPu') +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_discrete(limits=c('high risk', 'mid risk', 'low risk')) +
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, 
+            color = "black")
+```
+From the above code and bar chart we see that there are three different types of Risk Levels associated with this dataset that the author define as; high, mid, and low risks. From the bar chart above we conclude that the counts are high < mid < low. 
+
+Now, let's focus on exploring the Age variable. 
+
+```{r Exploratory Data Analysis continued 3}
+#Histogram of Ages
+#it looks bimodal
+ggplot(data, aes(Age)) +
+  geom_histogram(binwidth=5, fill = 'pink', 
+                 color = 'white') +
+  theme_bw() +
+  ggtitle('Age Distribution of Breast Cancer 
+    Participants') +
+  labs(y = 'Frequency Distribution') +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+A histogram is a means to show the frequency distribution as observations are put into designated bins.
+
+Some insights by ,anipulating the bindwidth, I find the shape of the distribution is ### *bimodal* signifying that there could be two groups I could possible take a look at. The first and second peak is Age~20 and Age~50. A possible path is that I could break up the dataset into two parts based on the peaks (modes) and each art would have its own summary statistics.
+
+But for now, let's continue with the EDA within age variable. 
+
+```{r Exploratory Data Analysis continued 4}
+ggplot(data, aes(x=RiskLevel, y=Age, fill=RiskLevel)) +
+  geom_boxplot(width=0.5,
+               outlier.color='darkgreen') +
+  theme_bw() +
+  scale_fill_brewer(palette = 'RdPu') +
+  scale_x_discrete(limits=c('high risk', 'mid risk', 'low risk')) +
+  ggtitle('Age Distribution based on 
+  Risk Level Category') +
+  labs(y = 'Age Distribution') +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+Another way is see the distribution is via boxplot. Like the summary() function this plot shows the min, Q1, median, Q3, and max. But unlike that function, the boxplot helps us visualize the data and point out the outliers, which are not shown in the summary table, as shown as green dots here.
+
+Some insights from this graph is that shape of the boxes and whisker lengths are almost identical between the mid and low risk categories. This means that based on this dataset's Age, it is difficult to distinguish between the two. In addition, both have outliers that are above the age, 50. The outliers skews the data, and in this case, pulls the mid and low risk categories upwards to the higher age range. The best way to visualize this is via a density plot, which we will go over in the next section.
+
+The key insight is that of the high risk category boxplot. The "box" which contains 50% of the data is much bigger in comparison to mid and low risk. What this means is that women between the ages of roughly 22-48 could possibly lie within a high risk category of maternal risks. Extrapolating further, the median is also much higher, age~35. What this prompts is that indicating that are women in the mid thirties could possibly lie within a high risk category. This is an interesting finding. 
+
+```{r Exploratory Data Analysis continued 5}
+ggplot(data, aes(x=RiskLevel, y=Age, fill=RiskLevel)) +
+  geom_half_violin() +
+  geom_half_point(alpha=0.2, color='black',
+                  size=0.8, position = 'dodge') +
+  scale_fill_brewer(palette = 'RdPu') +
+  theme_bw() +
+  labs(title = 'Half-violin and Half-scatter plots
+  of Age based on Risk Level Categories') +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(data, aes(x=Age, y=RiskLevel, fill=RiskLevel)) +
+  geom_density_ridges_gradient() +
+    scale_fill_brewer(palette = 'RdPu') +
+  theme_bw() +
+    labs(title = 'Ridge plots
+  of Age based on Risk Level Categories') +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+To continue with the Age variable, I wanted to broaden my R skills by using different visualizations the programming language offers. To further compliment the boxplot, I wanted to use gghalves and create a half-violin and half-scatter plot. 
+
+```{r Exploratory Data Analysis continued 6}
+#Scatterplot for Age and BS
+#Not much of a realtionship
+ggplot(data, aes(Age, BloodSugar)) +
+  geom_point(color='lightpink') +
+  geom_smooth() +
+  theme_bw()
+```
+
+Now, let's move on to a tradtional appraoch to see if there are any correlations between the variables, excluding RiskLevel. One such approach is a correlation matrix that conventiently describes the data, by looking at the raw data.
+
+
+```{r Exploratory Data Analysis continued 7}
+#Create data without last variable that contained chr
+# -c(7) corresponds to the last variable
+corrplot_data <-data[,-c(7)]
+
+#Check to see if RiskLevel is deleted
+names(corrplot_data)
+
+#Simple Corrplot
+corrplot(cor(corrplot_data))
+
+ggpairs(data)
+```
+
+
+
+## Machine Learning: KNN
+Now, let's see if the dataset metrics can be used to predict whether a person is high, mid, or low risk. The method I'am using is K Nearest Neighbors, a distance algorithmn. In short, it will classify an unknown observation, with it's known metrics, to a category based on it's nearest neigbors 
+
+The data will be split into the traditional 80/20 split that will split 80% of the data into the training set and 20% of the data into the testing set. It is important to note that we never want to train iwth our testing data. 
+```{r Machine Learning: KNN}
+#see structure of the dataset
+str(data)
+
+#make a copy of the orginal dataset
+data2 <-data
+```
+We see that dependent variable, RiskLevel, is a character and for purposes of KNN, RiskLevel needs to converted into a factor. 
+```{r Machine Learning: KNN continued 2}
+#convert the RiskLevel column, our target, into a factor
+data2$RiskLevel <- as.factor(data2$RiskLevel)
+```
+
+Now we need to normalize the 6 remaining metrics, but first in order to be more efficient, let's write a function that will iterate over each variable column instead of assigned values witin a variable to an object and piecing it together in another dataframe. Again, we are not interested in the RiskLevel, so I will disregard that variable column when I code the lapply. 
+```{r Machine Learning: KNN continued 3}
+#need to normalize data with a range between 0 and 1
+#create a function to iterate for each variable column
+data_norm <- function (x) {
+  ((x-min(x))/ (max(x)- min(x)))
+}
+#create the normalize data
+#lapply will iterate over each of the variables and store it into a 
+#dataframe object except for target variable, RiskLevel
+data3 <- as.data.frame(lapply(data2[,-7], data_norm))
+```
+
+Let's compare the the summary statistics of data2 (pre-normalizaiton) to data3 (post-normalization). 
+```{r Machine Learning: KNN continued 4}
+#check to see if ALL values range from 0 to 1
+#important to do this before doing KNN
+summary(data2[-7])
+
+summary(data3)
+```
+data 3 is summarized and ready to go into the KNN model. 
+
+Let's do a pre-check when splitting the data into a 80/20 split before actually doing the split. 
+```{r Machine Learning: KNN continued 5}
+#create split concept
+a <- .8*1014
+b <- .2*1014
+a+b
+811+203
+```
+
+
+```{r Machine Learning: KNN continued 6}
+#create 80/20 split for testing and training set based on the rows
+data3_train <- data3[1:811, ]
+data3_test <- data3[812:1014, ]
+
+#create the pred model
+data3_pred <- knn(
+  data3_train,
+  data3_test,
+  #create training labels but labels are present in data2 and on RiskLevel,
+  #which is column 7
+  data2[1:811,7],
+  #need to specify value of K
+  #general rule of thumb is sq.rt. of 1014 is 31-ish
+  k=31)
+
+#validate pred labels with the actual labels on the RiskLevel, which is column 7
+table(data3_pred, data2[812:1014,7])
+```

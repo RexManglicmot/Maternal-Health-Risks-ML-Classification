@@ -2,7 +2,7 @@
 title: "Maternal Health Risks Classification: KNN and Decision Trees"
 author: Rex Manglicmot
 output: 
-  html_notebook: 
+  github_document: 
     toc: yes
     highlight: pygments
     theme: journal

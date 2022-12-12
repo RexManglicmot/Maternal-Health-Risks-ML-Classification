@@ -1,11 +1,9 @@
 ---
-title: "Maternal Health Risks Classification: KNN and Decision Trees"
-author: Rex Manglicmot
+title: "Maternal Health Risks Classification KNN and Decision Trees"
+author: "Rex Manglicmot"
 output: 
   github_document: 
     toc: yes
-    highlight: pygments
-    theme: journal
 ---
 ## Status: Continuing Working Document
 

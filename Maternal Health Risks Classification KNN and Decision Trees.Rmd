@@ -152,6 +152,7 @@ ggplot(data, aes(x=RiskLevel, fill=RiskLevel)) +
   geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, 
             color = "black")
 ```
+
 From the above code and bar chart we see that there are three different types of Risk Levels associated with this dataset that the author define as; high, mid, and low risks. From the bar chart above we conclude that the counts are high < mid < low. 
 
 Now, let's focus on exploring the Age variable. 
@@ -167,6 +168,7 @@ ggplot(data, aes(Age)) +
   labs(y = 'Frequency Distribution') +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
 A histogram is a means to show the frequency distribution as observations are put into designated bins.
 
 Some insights by ,anipulating the bindwidth, I find the shape of the distribution is *bimodal* signifying that there could be two groups I could possible take a look at. The first and second peak is Age~20 and Age~50. A possible path is that I could break up the dataset into two parts based on the peaks (modes) and each art would have its own summary statistics.
@@ -185,6 +187,7 @@ ggplot(data, aes(x=RiskLevel, y=Age, fill=RiskLevel)) +
   labs(y = 'Age Distribution') +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
 Another way is see the distribution is via boxplot. Like the summary() function this plot shows the min, Q1, median, Q3, and max. But unlike that function, the boxplot helps us visualize the data and point out the outliers, which are not shown in the summary table, as shown as green dots here.
 
 Some insights from this graph is that shape of the boxes and whisker lengths are almost identical between the mid and low risk categories. This means that based on this dataset's Age, it is difficult to distinguish between the two. In addition, both have outliers that are above the age, 50. The outliers skews the data, and in this case, pulls the mid and low risk categories upwards to the higher age range. The best way to visualize this is via a density plot, which we will go over in the next section.
@@ -210,6 +213,7 @@ ggplot(data, aes(x=Age, y=RiskLevel, fill=RiskLevel)) +
   of Age based on Risk Level Categories') +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
 To continue with the Age variable, I wanted to broaden my R skills by using different visualizations the programming language offers. To further compliment the boxplot, I wanted to use gghalves and create a half-violin and half-scatter plot. 
 
 Now, let's move on to a tradtional appraoch to see if there are any correlations between the variables, excluding RiskLevel. One such approach is a correlation matrix that conventiently describes the data, by looking at the raw data.
@@ -315,6 +319,7 @@ table_tree
 1-sum(diag(table_tree))/sum(table_tree)
 
 ```
+
 In terms of HighRisk the model predicted 53/61 right. In terms of LowRisk the model predicted 72/82 right. In terms of MidRisk, the model predicted 13/56 right. 
 
 The miscalculation is 31% meaning the accuracy of the model is 78%.

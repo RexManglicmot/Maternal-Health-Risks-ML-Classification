@@ -293,6 +293,7 @@ ggplot(data, aes(x=RiskLevel, fill=RiskLevel)) +
     ## ℹ Please use `after_stat(count)` instead.
 
 ![](Maternal-Health-Risks-Classification-KNN-and-Decision-Trees_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
 From the above code and bar chart we see that there are three different
 types of Risk Levels associated with this dataset that the author define
 as; high, mid, and low risks. From the bar chart above we conclude that
@@ -313,6 +314,7 @@ ggplot(data, aes(Age)) +
 ```
 
 ![](Maternal-Health-Risks-Classification-KNN-and-Decision-Trees_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
 A histogram is a means to show the frequency distribution as
 observations are put into designated bins.
 
@@ -339,6 +341,7 @@ ggplot(data, aes(x=RiskLevel, y=Age, fill=RiskLevel)) +
 ```
 
 ![](Maternal-Health-Risks-Classification-KNN-and-Decision-Trees_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
 Another way is see the distribution is via boxplot. Like the summary()
 function this plot shows the min, Q1, median, Q3, and max. But unlike
 that function, the boxplot helps us visualize the data and point out the
@@ -390,6 +393,7 @@ ggplot(data, aes(x=Age, y=RiskLevel, fill=RiskLevel)) +
     ## Picking joint bandwidth of 3.19
 
 ![](Maternal-Health-Risks-Classification-KNN-and-Decision-Trees_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+
 To continue with the Age variable, I wanted to broaden my R skills by
 using different visualizations the programming language offers. To
 further compliment the boxplot, I wanted to use gghalves and create a

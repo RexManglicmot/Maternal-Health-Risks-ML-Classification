@@ -327,7 +327,6 @@ The miscalculation is 31% meaning the accuracy of the model is 78%.
 #lets try another plotting format
 tree2 <-rpart(RiskLevel~., data_dt_train)
 rpart.plot(tree2)
-## Need to figure out how to interpret this
 ```
 
 ```{r}

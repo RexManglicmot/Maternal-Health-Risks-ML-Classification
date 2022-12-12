@@ -660,10 +660,6 @@ rpart.plot(tree2)
 ![](Maternal-Health-Risks-Classification-KNN-and-Decision-Trees_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 ``` r
-## Need to figure out how to interpret this
-```
-
-``` r
 #create 80/20 split for testing and training set based on the rows
 data3_train <- data3[1:811, ]
 data3_test <- data3[812:1014, ]

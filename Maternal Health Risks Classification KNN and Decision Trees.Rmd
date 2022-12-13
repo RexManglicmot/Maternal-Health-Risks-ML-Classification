@@ -240,7 +240,7 @@ corrplot(cor(corrplot_data),
 
 Let's do some classification, but first let's go into KNN concepts.
 
-## Modeling: K-Neighrest Neighbors
+## Modeling: K-Nearest Neighbors
 ![](https://static.javatpoint.com/tutorial/machine-learning/images/k-nearest-neighbor-algorithm-for-machine-learning2.png)
 
 **K-Nearest Neighbors** is a distance algorithm. In short, it will classify an unknown observation (i.e., a "new data point" in the picture above), with it's known metrics, to a category based on the proximity to it's nearest neighbors.^[https://www.javatpoint.com/k-nearest-neighbor-algorithm-for-machine-learning] 
@@ -332,7 +332,7 @@ table_knn <- table(Predicted = data3_pred, Actual = data2[812:1014,7])
 #view table
 table_knn
 ```
-The model predicted for each classification:
+In the table above, the model predicted for each classification:
 
 * High Risk: 41 correct out of 100 = 41% correct
 * Low Risk: 47 correct out of 78 =  60% correct
@@ -340,13 +340,13 @@ The model predicted for each classification:
 
 This is not good!
 
-Let's calculate the miscalculation error nonetheless.
+Let's calculate the model's miscalculation error nonetheless.
 ```{r}
 #Calculate error
 1-sum(diag(table_knn))/sum(table_knn)
 ```
 
-The miscalculation is 38% meaning the **accuracy of entire KNN model is 62%**. This is not optimal.
+The miscalculation error is 38%, meaning the **accuracy of entire KNN model is 62%**. This is not optimal.
 
 Perhaps KNN is not the best model for classification of this dataset. 
 
@@ -359,7 +359,8 @@ Decision Trees are another way for classification. It is a tree-like flowchart t
 set.seed(123)
 
 #split the data
-#recall that the dependent variable needs to be a factor, not a chracter so need to use data2 because it is already converted. 
+#recall that the dependent variable needs to be a factor, 
+#not a chracter so need to use data2 because it is already converted. 
 data_dt <- sample(2, nrow(data2), replace= TRUE, prob= c(0.8, 0.2))
 data_dt_train <-data2[data_dt==1, ]
 data_dt_test <-data2[data_dt==2, ]
@@ -375,6 +376,7 @@ tree <- ctree(RiskLevel~., data_dt_train)
 #the output for the two codes is shown but not executed because
 #the plots are not clear.
 #Both show the same info, I screened shot the plot(tree) below
+
 #print tree and it has 27 nodes
 print(tree)
 
@@ -396,25 +398,26 @@ table_tree <- table(Predicted= tree_test_results, Acutal= data_dt_test$RiskLevel
 
 #see the results
 table_tree
+```
+In the table above, the model predicted for each classification:
 
+* High Risk: 51 correct out of 61 = 84% correct
+* Low Risk: 72 correct out of 83 =  87% correct
+* Mid Risk: 19 correct out of 56 = 34% correct
+
+For High and Low Risk classification, the Decision Tree model did fairly well! Not so with Mid Risk classification.
+
+Let's calculate the model's miscalculation error nonetheless.
+
+```{r}
 #Calculate error
 1-sum(diag(table_tree))/sum(table_tree)
 
 ```
 
-In terms of HighRisk the model predicted 53/61 right. In terms of LowRisk the model predicted 72/82 right. In terms of MidRisk, the model predicted 13/56 right. 
+The miscalculation error is 31%, meaning the **accuracy of the Decision Tree model is 78%**.
 
-The miscalculation is 31% meaning the accuracy of the model is 78%.
-
-Let's try another plotting Decision trees another way. 
-
-```{r}
-#lets try another plotting format
-tree2 <-rpart(RiskLevel~., data_dt_train)
-rpart.plot(tree2)
-```
-
-
+This model is did okay. Perhaps, another classification model would be better.
 
 ## Limitations
 
@@ -431,6 +434,18 @@ ggplot(data, aes(Age, BloodSugar)) +
   geom_smooth() +
   theme_bw()
 ```
+
+The below plot is of the same decision tree above, but with **colors**. The Decision Tree Plot Color.png is also available within this repository. 
+```{r, eval= FALSE}
+#the output for the two codes is shown but not executed because
+#the plots are not clear.
+
+#lets try another plotting format
+#tree2 <-rpart(RiskLevel~., data_dt_train)
+#rpart.plot(tree2)
+```
+![Decision Tree Plot Color](Decision Tree Plot Color.png)
+
 
 ## Inspiration for this project
 

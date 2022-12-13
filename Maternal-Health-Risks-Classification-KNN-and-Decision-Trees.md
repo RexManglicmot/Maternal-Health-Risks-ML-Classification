@@ -14,9 +14,8 @@ Rex Manglicmot
     Data</a>
 -   <a href="#exploratory-data-analysis"
     id="toc-exploratory-data-analysis">Exploratory Data Analysis</a>
--   <a href="#modeling-k-neighrest-neighbors"
-    id="toc-modeling-k-neighrest-neighbors">Modeling: K-Neighrest
-    Neighbors</a>
+-   <a href="#modeling-k-nearest-neighbors"
+    id="toc-modeling-k-nearest-neighbors">Modeling: K-Nearest Neighbors</a>
 -   <a href="#modeling-decision-trees"
     id="toc-modeling-decision-trees">Modeling: Decision Trees</a>
 -   <a href="#limitations" id="toc-limitations">Limitations</a>
@@ -442,7 +441,7 @@ corrplot(cor(corrplot_data),
 
 Let’s do some classification, but first let’s go into KNN concepts.
 
-## Modeling: K-Neighrest Neighbors
+## Modeling: K-Nearest Neighbors
 
 ![](https://static.javatpoint.com/tutorial/machine-learning/images/k-nearest-neighbor-algorithm-for-machine-learning2.png)
 
@@ -618,7 +617,7 @@ table_knn
     ##   low risk          3       47       22
     ##   mid risk         15       27       38
 
-The model predicted for each classification:
+In the table above, the model predicted for each classification:
 
 -   High Risk: 41 correct out of 100 = 41% correct
 -   Low Risk: 47 correct out of 78 = 60% correct
@@ -626,7 +625,7 @@ The model predicted for each classification:
 
 This is not good!
 
-Let’s calculate the miscalculation error nonetheless.
+Let’s calculate the model’s miscalculation error nonetheless.
 
 ``` r
 #Calculate error
@@ -635,8 +634,8 @@ Let’s calculate the miscalculation error nonetheless.
 
     ## [1] 0.3793103
 
-The miscalculation is 38% meaning the **accuracy of entire KNN model is
-62%**. This is not optimal.
+The miscalculation error is 38%, meaning the **accuracy of entire KNN
+model is 62%**. This is not optimal.
 
 Perhaps KNN is not the best model for classification of this dataset.
 
@@ -656,7 +655,8 @@ one of the 3 RiskLevel types.
 set.seed(123)
 
 #split the data
-#recall that the dependent variable needs to be a factor, not a chracter so need to use data2 because it is already converted. 
+#recall that the dependent variable needs to be a factor, 
+#not a chracter so need to use data2 because it is already converted. 
 data_dt <- sample(2, nrow(data2), replace= TRUE, prob= c(0.8, 0.2))
 data_dt_train <-data2[data_dt==1, ]
 data_dt_test <-data2[data_dt==2, ]
@@ -671,6 +671,7 @@ tree <- ctree(RiskLevel~., data_dt_train)
 #the output for the two codes is shown but not executed because
 #the plots are not clear.
 #Both show the same info, I screened shot the plot(tree) below
+
 #print tree and it has 27 nodes
 print(tree)
 
@@ -703,6 +704,17 @@ table_tree
     ##   low risk          2       72       30
     ##   mid risk          8        6       19
 
+In the table above, the model predicted for each classification:
+
+-   High Risk: 51 correct out of 61 = 84% correct
+-   Low Risk: 72 correct out of 83 = 87% correct
+-   Mid Risk: 19 correct out of 56 = 34% correct
+
+For High and Low Risk classification, the Decision Tree model did fairly
+well! Not so with Mid Risk classification.
+
+Let’s calculate the model’s miscalculation error nonetheless.
+
 ``` r
 #Calculate error
 1-sum(diag(table_tree))/sum(table_tree)
@@ -710,21 +722,11 @@ table_tree
 
     ## [1] 0.29
 
-In terms of HighRisk the model predicted 53/61 right. In terms of
-LowRisk the model predicted 72/82 right. In terms of MidRisk, the model
-predicted 13/56 right.
+The miscalculation error is 31%, meaning the **accuracy of the Decision
+Tree model is 78%**.
 
-The miscalculation is 31% meaning the accuracy of the model is 78%.
-
-Let’s try another plotting Decision trees another way.
-
-``` r
-#lets try another plotting format
-tree2 <-rpart(RiskLevel~., data_dt_train)
-rpart.plot(tree2)
-```
-
-![](Maternal-Health-Risks-Classification-KNN-and-Decision-Trees_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+This model is did okay. Perhaps, another classification model would be
+better.
 
 ## Limitations
 
@@ -746,6 +748,21 @@ ggplot(data, aes(Age, BloodSugar)) +
     ## `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'
 
 ![](Maternal-Health-Risks-Classification-KNN-and-Decision-Trees_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+
+The below plot is of the same decision tree above, but with **colors**.
+The Decision Tree Plot Color.png is also available within this
+repository.
+
+``` r
+#the output for the two codes is shown but not executed because
+#the plots are not clear.
+
+#lets try another plotting format
+#tree2 <-rpart(RiskLevel~., data_dt_train)
+#rpart.plot(tree2)
+```
+
+![Decision Tree Plot Color](Decision%20Tree%20Plot%20Color.png)
 
 ## Inspiration for this project
 

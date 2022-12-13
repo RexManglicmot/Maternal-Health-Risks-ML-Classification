@@ -21,7 +21,8 @@ Rex Manglicmot
     id="toc-modeling-decision-trees">Modeling: Decision Trees</a>
 -   <a href="#limitations" id="toc-limitations">Limitations</a>
 -   <a href="#conclusion" id="toc-conclusion">Conclusion</a>
--   <a href="#appendix" id="toc-appendix">Appendix</a>
+-   <a href="#appendix-random-plots" id="toc-appendix-random-plots">Appendix
+    (Random Plots)</a>
 -   <a href="#inspiration-for-this-project"
     id="toc-inspiration-for-this-project">Inspiration for this project</a>
 
@@ -49,16 +50,12 @@ Things Need to Do/Questions:
 
 Maternal health risks has increased since the medieval days. However,
 there is still a need to understand the underlying factors that
-contribute to women health includings metrics such as age and blood
-sugar levels over various age groups.
+contribute to women health including metrics such as age and blood sugar
+levels over various age groups.
 
 This projects aims to learn more about such predictors by using machine
 learning methods such as KNN and Random Forests to see if factors can
 accurately predict maternal health risks.
-
-Based on UCI’s Repository below are the metrics: 1. Age 2. Systolic BP
-(blood pressure) 3. Diastolic BP (blood pressure) 4. Blood Sugar 5. Body
-Temp 6. Heart Rate 7. Risk Level
 
 This project is outlined in the following chapters:
 
@@ -72,6 +69,24 @@ This project is outlined in the following chapters:
 8.  Conclusion
 9.  Appendix
 10. Inspiration for this project
+
+A special acknowledgement to the University of Irvine’s Machine Learning
+Repository for providing the dataset to the public.[^1] A special
+acknowledgement to Marzia Ahmed from the Daffodil International
+University in Dhaka, Bangladesh and the rest of the coauthors for their
+contribution of their research dataset.[^2]
+
+Based on UCI’s Repository below are how each variable is measured:
+
+1.  Age: years when the women was pregnant.
+2.  Systolic BP (blood pressure): upper value of Blood Pressure in mmHg
+3.  Diastolic BP (blood pressure): lower value of Blood Pressure in mmHg
+4.  Blood Sugar: molar concentration, mmol/L
+5.  Body Temp: in Celsius
+6.  Heart Rate: : normal resting heart rate in beats per minute
+7.  Risk Level: predicted Risk Intensity Level during pregnancy
+    considering the previous attribute (unclear, assume it is heart
+    rate?)
 
 ## Loading the Libraries
 
@@ -425,18 +440,39 @@ corrplot(cor(corrplot_data),
 
 ![](Maternal-Health-Risks-Classification-KNN-and-Decision-Trees_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
+Let’s do some classification, but first let’s go into KNN concepts.
+
 ## Modeling: K-Neighrest Neighbors
 
-Now, let’s see if the dataset metrics can be used to predict whether a
-person is high, mid, or low risk. The method I’am using is K Nearest
-Neighbors, a distance algorithmn. In short, it will classify an unknown
-observation, with it’s known metrics, to a category based on it’s
-nearest neigbors
+![](https://static.javatpoint.com/tutorial/machine-learning/images/k-nearest-neighbor-algorithm-for-machine-learning2.png)
 
-The data will be split into the traditional 80/20 split that will split
-80% of the data into the training set and 20% of the data into the
-testing set. It is important to note that we never want to train iwth
-our testing data.
+**K-Nearest Neighbors** is a distance algorithm. In short, it will
+classify an unknown observation (i.e., a “new data point” in the picture
+above), with it’s known metrics, to a category based on the proximity to
+it’s nearest neighbors.[^3]
+
+First, we set the number of K-neighbors and then the KNN model
+calculates the **Euclidean Distance** between the unknown data point and
+the aforementioned K-neighbors (see pic below) and classifies the
+unknown data point based on majority.
+
+![](https://static.javatpoint.com/tutorial/machine-learning/images/k-nearest-neighbor-algorithm-for-machine-learning4.png)
+
+For example, suppose we have 2 Categories (A and B) and an unknown
+observation, and we want to know what classification it would be.
+Suppose we set k=5, then the model will look at the **5 nearest
+neighbors** and determine the unknown observation based on the
+classification of those 5 nearest neighbors. (see pic below)
+
+![](https://static.javatpoint.com/tutorial/machine-learning/images/k-nearest-neighbor-algorithm-for-machine-learning5.png)
+
+We will do this classification with our dataset. We will split into the
+traditional 80/20 split that will split 80% of the data into the
+training set and 20% of the data into the testing set. (It is important
+to note that we never want to train with our testing data.)
+
+Let’s review the structure and make a copy of the original dataset as we
+move forward.
 
 ``` r
 #see structure of the dataset
@@ -453,7 +489,7 @@ str(data)
     ##  $ RiskLevel  : chr  "high risk" "high risk" "high risk" "high risk" ...
 
 ``` r
-#make a copy of the orginal dataset
+#make a copy of the original dataset
 data2 <-data
 ```
 
@@ -465,10 +501,10 @@ purposes of KNN, RiskLevel needs to converted into a factor.
 data2$RiskLevel <- as.factor(data2$RiskLevel)
 ```
 
-Now we need to normalize the 6 remaining metrics, but first in order to
-be more efficient, let’s write a function that will iterate over each
-variable column instead of assigned values witin a variable to an object
-and piecing it together in another dataframe. Again, we are not
+Now we need to normalize the 6 remaining variables, but first in order
+to be more efficient, let’s write a function that will iterate over each
+variable column instead of assigned values within a variable to an
+object and piecing it together in another dataframe. Again, we are not
 interested in the RiskLevel, so I will disregard that variable column
 when I code the lapply.
 
@@ -478,13 +514,14 @@ when I code the lapply.
 data_norm <- function (x) {
   ((x-min(x))/ (max(x)- min(x)))
 }
+
 #create the normalize data
 #lapply will iterate over each of the variables and store it into a 
 #dataframe object except for target variable, RiskLevel
 data3 <- as.data.frame(lapply(data2[,-7], data_norm))
 ```
 
-Let’s compare the the summary statistics of data2 (pre-normalizaiton) to
+Let’s compare the the summary statistics of data2 (pre-normalization) to
 data3 (post-normalization).
 
 ``` r
@@ -547,10 +584,68 @@ a+b
 
     ## [1] 1014
 
+Great! Both the test and train dataframes have the same number of
+observations as in the original dataframe.
+
+Let’s split the data and create the model.
+
+``` r
+#create 80/20 split for testing and training set based on the rows
+data3_train <- data3[1:811, ]
+data3_test <- data3[812:1014, ]
+
+#create the prediction model
+data3_pred <- knn(
+  data3_train,
+  data3_test,
+  #create training labels but labels are present in data2 and on RiskLevel,
+  #which is column 7
+  data2[1:811,7],
+  #need to specify value of K
+  #general rule of thumb is sq.rt. of 1014 is 31-ish
+  k=31)
+
+#validate pred labels with the actual labels on the RiskLevel, which is column 7
+table_knn <- table(Predicted = data3_pred, Actual = data2[812:1014,7])
+
+#view table
+table_knn
+```
+
+    ##            Actual
+    ## Predicted   high risk low risk mid risk
+    ##   high risk        41        4        6
+    ##   low risk          3       47       22
+    ##   mid risk         15       27       38
+
+The model predicted for each classification:
+
+-   High Risk: 41 correct out of 100 = 41% correct
+-   Low Risk: 47 correct out of 78 = 60% correct
+-   Mid Risk: 38 correct out of 66 = 58% correct
+
+This is not good!
+
+Let’s calculate the miscalculation error nonetheless.
+
+``` r
+#Calculate error
+1-sum(diag(table_knn))/sum(table_knn)
+```
+
+    ## [1] 0.3793103
+
+The miscalculation is 38% meaning the **accuracy of entire KNN model is
+62%**. This is not optimal.
+
+Perhaps KNN is not the best model for classification of this dataset.
+
+Let’s try another classification model, Decision Trees.
+
 ## Modeling: Decision Trees
 
 Decision Trees are another way for classification. It is a tree-like
-flowchart that is used to decide how to classify an obserivation. With
+flowchart that is used to decide how to classify an observation. With
 every decision there will be a “yes/no” and branch out to the next node
 and will continue to do so until all the metrics are used. Thus, similar
 to KNN we will use the metrics to predict the classification a person is
@@ -570,56 +665,26 @@ data_dt_test <-data2[data_dt==2, ]
 #RiskLevel is the dependent variable such that we want to predict
 #recall that the "." means everything, so in this case it means all the the variables, 6 total. Using train data
 tree <- ctree(RiskLevel~., data_dt_train)
-
-#print tree and it has 27 nodes
-print(tree)
 ```
 
-    ## 
-    ## Model formula:
-    ## RiskLevel ~ Age + SystolicBP + DiastolicBP + BloodSugar + BodyTemp + 
-    ##     HeartRate
-    ## 
-    ## Fitted party:
-    ## [1] root
-    ## |   [2] BloodSugar <= 7.9
-    ## |   |   [3] SystolicBP <= 130
-    ## |   |   |   [4] BodyTemp <= 99
-    ## |   |   |   |   [5] SystolicBP <= 129
-    ## |   |   |   |   |   [6] SystolicBP <= 100
-    ## |   |   |   |   |   |   [7] BloodSugar <= 6.9: low risk (n = 94, err = 38.3%)
-    ## |   |   |   |   |   |   [8] BloodSugar > 6.9
-    ## |   |   |   |   |   |   |   [9] DiastolicBP <= 70: low risk (n = 77, err = 5.2%)
-    ## |   |   |   |   |   |   |   [10] DiastolicBP > 70: low risk (n = 11, err = 36.4%)
-    ## |   |   |   |   |   [11] SystolicBP > 100
-    ## |   |   |   |   |   |   [12] SystolicBP <= 115: mid risk (n = 9, err = 44.4%)
-    ## |   |   |   |   |   |   [13] SystolicBP > 115: low risk (n = 243, err = 39.5%)
-    ## |   |   |   |   [14] SystolicBP > 129: mid risk (n = 29, err = 0.0%)
-    ## |   |   |   [15] BodyTemp > 99
-    ## |   |   |   |   [16] BodyTemp <= 101: mid risk (n = 68, err = 30.9%)
-    ## |   |   |   |   [17] BodyTemp > 101
-    ## |   |   |   |   |   [18] DiastolicBP <= 65: high risk (n = 24, err = 54.2%)
-    ## |   |   |   |   |   [19] DiastolicBP > 65: mid risk (n = 17, err = 47.1%)
-    ## |   |   [20] SystolicBP > 130
-    ## |   |   |   [21] Age <= 36: high risk (n = 26, err = 0.0%)
-    ## |   |   |   [22] Age > 36: mid risk (n = 8, err = 37.5%)
-    ## |   [23] BloodSugar > 7.9
-    ## |   |   [24] BloodSugar <= 9: mid risk (n = 44, err = 52.3%)
-    ## |   |   [25] BloodSugar > 9
-    ## |   |   |   [26] Age <= 40: high risk (n = 69, err = 2.9%)
-    ## |   |   |   [27] Age > 40
-    ## |   |   |   |   [28] SystolicBP <= 130: high risk (n = 58, err = 48.3%)
-    ## |   |   |   |   [29] SystolicBP > 130: high risk (n = 37, err = 0.0%)
-    ## 
-    ## Number of inner nodes:    14
-    ## Number of terminal nodes: 15
-
 ``` r
+#the output for the two codes is shown but not executed because
+#the plots are not clear.
+#Both show the same info, I screened shot the plot(tree) below
+#print tree and it has 27 nodes
+print(tree)
+
 #plot the tree
 plot(tree)
 ```
 
-![](Maternal-Health-Risks-Classification-KNN-and-Decision-Trees_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![Decision Tree Plot](Decision%20Tree%20Plot.png)
+
+In RStudio, this plot renders normal, but does not in GitHub. The plot
+tends to scrunch up and not give the best quality.
+
+Thus, the Decision Tree Plot above is a screen shot and is also
+available within this repository.
 
 ``` r
 #use the model on the test data
@@ -651,52 +716,15 @@ predicted 13/56 right.
 
 The miscalculation is 31% meaning the accuracy of the model is 78%.
 
+Let’s try another plotting Decision trees another way.
+
 ``` r
 #lets try another plotting format
 tree2 <-rpart(RiskLevel~., data_dt_train)
 rpart.plot(tree2)
 ```
 
-![](Maternal-Health-Risks-Classification-KNN-and-Decision-Trees_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
-
-``` r
-#create 80/20 split for testing and training set based on the rows
-data3_train <- data3[1:811, ]
-data3_test <- data3[812:1014, ]
-
-#create the pred model
-data3_pred <- knn(
-  data3_train,
-  data3_test,
-  #create training labels but labels are present in data2 and on RiskLevel,
-  #which is column 7
-  data2[1:811,7],
-  #need to specify value of K
-  #general rule of thumb is sq.rt. of 1014 is 31-ish
-  k=31)
-
-#validate pred labels with the actual labels on the RiskLevel, which is column 7
-table_knn <- table(Predicted = data3_pred, Actual = data2[812:1014,7])
-
-#view table
-table_knn
-```
-
-    ##            Actual
-    ## Predicted   high risk low risk mid risk
-    ##   high risk        41        4        6
-    ##   low risk          3       47       22
-    ##   mid risk         15       27       38
-
-``` r
-#Calculate error
-1-sum(diag(table_knn))/sum(table_knn)
-```
-
-    ## [1] 0.3793103
-
-The miscalculation is 38% meaning the accuracy of the model is 62%. This
-is not optimal.
+![](Maternal-Health-Risks-Classification-KNN-and-Decision-Trees_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 ## Limitations
 
@@ -704,11 +732,11 @@ is not optimal.
 
 I will finish this part when the above sections are completed.
 
-## Appendix
+## Appendix (Random Plots)
 
 ``` r
 #Scatterplot for Age and BS
-#Not much of a realtionship
+#Not much of a relationship
 ggplot(data, aes(Age, BloodSugar)) +
   geom_point(color='lightpink') +
   geom_smooth() +
@@ -717,6 +745,16 @@ ggplot(data, aes(Age, BloodSugar)) +
 
     ## `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'
 
-![](Maternal-Health-Risks-Classification-KNN-and-Decision-Trees_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](Maternal-Health-Risks-Classification-KNN-and-Decision-Trees_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 ## Inspiration for this project
+
+[^1]: <https://archive.ics.uci.edu/ml/datasets/Maternal+Health+Risk+Data+Set>
+
+[^2]: Ahmed M., Kashem M.A., Rahman M., Khatun S. (2020) Review and
+    Analysis of Risk Factor of Maternal Health in Remote Area Using the
+    Internet of Things (IoT). In: Kasruddin Nasir A. et al. (eds)
+    InECCE2019. Lecture Notes in Electrical Engineering, vol 632.
+    Springer, Singapore.
+
+[^3]: <https://www.javatpoint.com/k-nearest-neighbor-algorithm-for-machine-learning>

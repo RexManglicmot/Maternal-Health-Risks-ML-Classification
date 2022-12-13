@@ -363,7 +363,7 @@ The miscalculation is 38% meaning the accuracy of the model is 62%. This is not 
 ## Conclusion
 I will finish this part when the above sections are completed. 
 
-## Appendix
+## Appendix (Random Plots)
 ```{r}
 #Scatterplot for Age and BS
 #Not much of a realtionship

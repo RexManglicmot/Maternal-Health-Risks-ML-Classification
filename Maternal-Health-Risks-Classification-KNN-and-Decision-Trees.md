@@ -38,11 +38,8 @@ Things Need to Do/Questions:
     the site
 -   rewrite intro and cite sources
 -   state objective of this project more convincingly
--   provide more concepts/theory about KNN and Decision Trees in each of
-    their sections
+-   provide more concepts/theory **Decision Trees** in the section
 -   check grammar
--   provide more insights into the models
--   check validation tests for the moels
 -   get feedback and incorporate
 
 ## Introduction
@@ -563,7 +560,7 @@ summary(data3)
     ##  3rd Qu.:0.000   3rd Qu.:0.8795  
     ##  Max.   :1.000   Max.   :1.0000
 
-data 3 is summarized and ready to go into the KNN model.
+data 3 is normalized and ready to go into the KNN model.
 
 Let’s do a pre-check when splitting the data into a 80/20 split before
 actually doing the split.
@@ -643,12 +640,16 @@ Let’s try another classification model, Decision Trees.
 
 ## Modeling: Decision Trees
 
-Decision Trees are another way for classification. It is a tree-like
-flowchart that is used to decide how to classify an observation. With
-every decision there will be a “yes/no” and branch out to the next node
-and will continue to do so until all the metrics are used. Thus, similar
-to KNN we will use the metrics to predict the classification a person is
-one of the 3 RiskLevel types.
+![](https://static.javatpoint.com/tutorial/machine-learning/images/decision-tree-classification-algorithm.png)
+
+A **Decision Tree** is an algorithm that starts from the Root Node. It
+compares values of root attributes with real data tree-like flowchart
+that is used to decide how to classify an observation.
+
+With every decision there will be a “yes/no” and branch out to the next
+node and will continue to do so until all the metrics are used. Thus,
+similar to KNN we will use the metrics to predict the classification a
+person is one of the 3 RiskLevel types.
 
 ``` r
 #set seed for replcation and also no need to normalize the data
